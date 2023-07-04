@@ -66,3 +66,22 @@ onMounted(() => {
   })
 })
 </script>
+<style >
+.pac-container {
+  border:2px solid #E3E7F0;
+  border-radius: 10px;
+  padding:12px;
+}
+.pac-container.pac-logo::after {
+display: none;
+}
+.pac-item {
+  border-radius: 8px;
+  border:0px solid black;
+  padding:12px 16px;
+  cursor: pointer;
+}
+.pac-icon{
+  margin-right: 20px;
+}
+</style>
