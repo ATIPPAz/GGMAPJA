@@ -1,5 +1,5 @@
 <template>
-  <input type="text" class="form-control" ref="inputAutoComplate" />
+  <input type="text" class="form-control" ref="inputAutoComplate" v-model="searchText" @change="getPredict"/>
 </template>
 <script setup lang="ts">
 import type { AutoCompleteGGMap } from './AutoComplete'
@@ -9,12 +9,36 @@ import { onMounted, ref } from 'vue'
 const emit = defineEmits<{ (e: 'selectAutoComplate', data: AutoCompleteGGMap): void }>()
 
 const apiKey = import.meta.env.VITE_GG_MAP_API_KEY
-
+const searchText = ref()
 const lat = ref()
 const lng = ref()
 const placeId = ref()
 const location = ref()
 const inputAutoComplate = ref()
+const autoService = new google.maps.places.AutocompleteService()
+
+async function getPredict(e:Event){  
+  const text = (<HTMLTextAreaElement>e.target).value
+    console.log(text);
+    
+  autoService.getPlacePredictions({
+    input:text,
+componentRestrictions:{country:'th'},
+types:['establishment']
+  },(prediction,status)=>{
+    if (status === google.maps.places.PlacesServiceStatus.OK) {
+        const autocompleteResults = prediction?.slice(0, 5).map(prediction => {
+          return {
+            placeId: prediction.place_id,
+            description: prediction.description
+          };
+        });
+        console.log(autocompleteResults);
+        // ทำอะไรกับข้อมูลที่ได้รับตามต้องการ
+      }
+  })
+}
+
 async function setUpAutoComplate() {
   const { Autocomplete } = (await google.maps.importLibrary('places')) as google.maps.PlacesLibrary
   const center = { lat: 50.064192, lng: -130.605469 }
@@ -36,6 +60,7 @@ async function setUpAutoComplate() {
 
   // นำ input element เเละ option ให้ gg map autocomplate ไป สร้าง auto complate
   const autoComplate = new Autocomplete(inputAutoComplate.value, options)
+console.log(autoComplate);
 
   // เพิ่ม event เมื่อกดเลือกใน autocomplate
   autoComplate.addListener('place_changed', () => {
@@ -62,7 +87,7 @@ onMounted(() => {
     language: 'th'
   })
   loader.load().then(async () => {
-    await setUpAutoComplate()
+    // await setUpAutoComplate()
   })
 })
 </script>
